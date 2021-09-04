@@ -1,12 +1,16 @@
 import React from 'react';
 
-const ManipulationPanel = () => {
+const ManipulationPanel = ({ onChange }) => {
+    const onUp = () => onChange('up');
+    const onRight = () => onChange('right');
+    const onLeft = () => onChange('left');
+    const onDown = () => onChange('down');
     return (
         <div className="manipuration-panel">
-            <button>←</button>
-            <button>↑</button>
-            <button>→</button>
-            <button>↓</button>
+            <button onClick={onLeft}>←</button>
+            <button onClick={onUp}>↑</button>
+            <button onClick={onRight}>→</button>
+            <button onClick={onDown}>↓</button>
         </div>
     );
 };
