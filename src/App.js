@@ -5,7 +5,7 @@ import Navigation from './components/Navigation';
 import Field from './components/Field';
 import Button from './components/Button';
 import ManipulationPanel from './components/ManipulationPanel';
-import { initFields } from './utils';
+import { initFields, getFoodPosition } from './utils';
 
 const initialPosition = { x: 17, y: 17 };
 const initialValues = initFields(35, initialPosition);
@@ -67,15 +67,22 @@ const isCollision = (filesize, position) => {
   return false;
 };
 
+const isEatingMyself = (fields, position) => {
+  return fields[position.y][position.x] === 'snake'
+};
+
 function App() {
   const [fields, setFields] = useState(initialValues);
-  const [position, setPosition] = useState();
+  const [body, setBody] = useState([]);
   const [status, setStatus] = useState('init');
   const [direction, setDirection] = useState(Direction.up);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    setPosition(initialPosition);
+    setBody([initialPosition]);
+    // setBody(
+    //   new Array(15).fill('').map((_item, index) => ({ x: 17, y: 17 + index })),
+    // )
     timer = setInterval(() => {
       setTick(tick => tick + 1);
     }, defaultInterval);
@@ -83,7 +90,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!position || status !== GameStatus.playing) {
+    if (body.length === 0 || status !== GameStatus.playing) {
       return
     };
     const canContinue = handleMoving();
@@ -100,7 +107,7 @@ function App() {
     }, defaultInterval);
     setDirection(Direction.up);
     setStatus(GameStatus.init);
-    setPosition(initialPosition);
+    setBody([initialPosition]);
     setFields(initFields(35, initialPosition));
   };
 
@@ -113,6 +120,7 @@ function App() {
     };
     setDirection(newDirection);
   }, [direction, status]);
+
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -128,19 +136,30 @@ function App() {
   }, [onChangeDirection]);
 
   const handleMoving = () => {
-    const { x, y } = position;
+    const { x, y } = body[0];
     const delta = Delta[direction]
     const newPosition = {
       x: x + delta.x,
       y: y + delta.y
     };
-    if (isCollision(fields.length, newPosition)) {
+
+    if (isCollision(fields.length, newPosition) || isEatingMyself(fields, newPosition)) {
       unsubscribe();
       return false;
     };
-    fields[y][x] = '';
+
+    const newBody = [...body];
+    if (fields[newPosition.y][newPosition.x] !== 'food') {
+      const removingTrack = newBody.pop();
+      fields[removingTrack.y][removingTrack.x] = '';
+    } else {
+      const food = getFoodPosition(fields.length, [...newBody, newPosition]);
+      fields[food.y][food.x] = 'food';
+    }
     fields[newPosition.y][newPosition.x] = 'snake';
-    setPosition(newPosition);
+    newBody.unshift(newPosition);
+
+    setBody(newBody);
     setFields(fields);
     return true;
   };
