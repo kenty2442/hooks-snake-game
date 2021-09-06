@@ -6,12 +6,14 @@ import {
     faArrowDown,
     faArrowRight
 } from '@fortawesome/free-solid-svg-icons';
+import { Direction } from '../constants/index';
+
 
 const ManipulationPanel = ({ onChange }) => {
-    const onUp = () => onChange('up');
-    const onRight = () => onChange('right');
-    const onLeft = () => onChange('left');
-    const onDown = () => onChange('down');
+    const onUp = () => onChange(Direction.up);
+    const onRight = () => onChange(Direction.right);
+    const onLeft = () => onChange(Direction.left);
+    const onDown = () => onChange(Direction.down);
     return (
         <div className="manipuration-panel">
             <button className='manipulation-btn btn btn-move btn-left' onClick={onLeft}>
